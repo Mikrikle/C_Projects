@@ -2,11 +2,10 @@
 using namespace std;
 
 
-void create_horizontal_line(int SIZE)
+void create_horizontal_line(int size)
 {
-	int coeff = 6;
 	cout << ' ';
-	for (int i = 0; i < SIZE + coeff; i++)
+	for (int i = 0; i < size + 6; i++)
 		cout << '-';
 	cout << endl;
 }
