@@ -120,6 +120,17 @@ int iswin(int *arr)
 		printf("\nplayer %c is WIN (by / column)\n", charplayer(ff[0]));
 		return ff[2];
 	}
+	// проверка заполнения поля
+	int isFieldFull = 1;
+	for(int i=0; i<9; i++)
+	{
+		if(ff[i] == 0){ isFieldFull = 0;}
+	}
+	if(isFieldFull)
+	{
+		printf("\nNobody wins\n");
+		return 2;
+	}
 
 
 	return 0;
