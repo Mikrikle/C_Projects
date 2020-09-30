@@ -18,11 +18,12 @@ int main()
 	
 	while(1)
 	{
-		gets(str);
+		printf(":  ");
+		fgets(str, MAX_SIZE, stdin);
 		if(strcmp(str, "0") == 0)
 			break;
 		upper(pointer);
-		printf("%s\n\n", pointer);
+		printf("-> %s\n", pointer);
 	}
 	return 0;
 }
