@@ -13,7 +13,7 @@ int main()
 	{
 		char_counter=0;
 		printf(":  ");
-		gets(user_str);
+		fgets(user_str, MAXLEN, stdin);
 		
 		// выход
 		if(user_str[0]=='0'){break;}
@@ -33,7 +33,7 @@ int main()
 		
 		// вывод
 		printf("-> ");
-		for(int i=char_counter; i>0; i--)
+		for(int i=char_counter-1; i>0; i--)
 		{
 			printf("%c", inverse_str[MAXLEN-i]);
 		}
@@ -41,4 +41,3 @@ int main()
 	}
 	return 0;
 }
-
