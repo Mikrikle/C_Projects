@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 	attempt_counter = 0;
 	
 	
-	printf(" guess the number from -(%d:%d)-\n", min, max);
+	printf(" guess the number in (%d:%d)\n", min, max);
 	printf("   '='   Yes this is my number\n");
 	printf("   '>'   My number is bigger\n");
 	printf("   '<'   My number is smaller\n");
