@@ -56,7 +56,7 @@ int main()
 			}
 			else
 			{
-				printf("You Win\n");
+				printf("You Win!\n");
 				wins++;
 			}
 		} 
@@ -69,12 +69,14 @@ int main()
 			}
 			else
 			{
-				printf("You Win\n");
+				printf("You Win!\n");
 				wins++;
 			}
 		}
+		PrintDoor(4, prize_door);
 		printf("-----\n|Wins: %2d   |\n|Looses: %2d |\n\n\n", wins, looses);
 		doors[0] = 0; doors[1] = 0; doors[2] = 0;
+		system("pause");
 	}
 	return 0;
 }
@@ -92,19 +94,30 @@ int FindDoor(int *ptr, int door)
 }
 
 
-void PrintDoor(int host_door, int player_door)
+void PrintDoor(int value, int player_door)
 {
 	
-	void YourDoor(int doors_num, int player_num)
+	
+	void YourDoor(int door_num, int player_num)
 	{
-		if(doors_num == player_num)
+		if(door_num == player_num)
 			printf("--Your-   ");
 		else
 			printf("-------   ");
 	}
 
+
+	void IsPrize(int door_num, int prize_door)
+	{
+		if(door_num==prize_door)
+			printf(" PRIZE  ");
+		else
+			printf("        ");
+			
+	}
 	
-	if(host_door == 0)
+	
+	if(value == 0)
 	{
 		printf("-------   -------   -------\n");
 		printf("|  #  |   | ### |   | ### |\n");
@@ -114,7 +127,7 @@ void PrintDoor(int host_door, int player_door)
 		printf("| ### |   | ####|   | ### |\n");
 		printf("-------   -------   -------\n");
 	}
-	else if(host_door == 1)
+	else if(value == 1)
 	{
 		printf("-         "); YourDoor(2, player_door); YourDoor(3, player_door);
 		printf("\n||        | ### |   | ### |\n");
@@ -124,7 +137,7 @@ void PrintDoor(int host_door, int player_door)
 		printf("||        | ####|   | ### |\n");
 		printf("-         -------   -------\n");
 	}
-	else if(host_door == 2)
+	else if(value == 2)
 	{
 		YourDoor(1, player_door);  printf("-         "); YourDoor(3, player_door);
 		printf("\n|  #  |   ||        | ### |\n");
@@ -134,14 +147,24 @@ void PrintDoor(int host_door, int player_door)
 		printf("| ### |   ||        | ### |\n");
 		printf("-------   -         -------\n");
 	}
-	else if(host_door == 3)
+	else if(value == 3)
 	{
-		YourDoor(1, player_door); YourDoor(2, player_door); printf("-      ");
+		YourDoor(1, player_door); YourDoor(2, player_door); printf("-");
 		printf("\n|  #  |   | ### |   ||     \n");
 		printf("| ##  |   | #  #|   ||     \n");
 		printf("|  #  |   |   # |   ||     \n");
 		printf("|  #  |   |  #  |   ||     \n");
 		printf("| ### |   | ####|   ||     \n");
 		printf("-------   -------   -      \n");
+	}
+	else if(value == 4)
+	{
+		printf("-         -         -\n");
+		printf("||        ||        ||\n");
+		printf("||        ||        ||\n");
+		IsPrize(0,player_door), IsPrize(1,player_door), IsPrize(2,player_door);
+		printf("\n||        ||        ||\n");
+		printf("||        ||        ||\n");
+		printf("-         -         -\n");
 	}
 }
