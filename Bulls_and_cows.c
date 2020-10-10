@@ -17,10 +17,10 @@ int main()
 	int x;
 	int cows=0, bulls=0, attempts = 0;
 
-	printf("\t\tRegulation\n");
-	printf("'cow'- (you guessed the number, but not its position)\n");
-	printf("'bull' - (you guessed both the number and position)\n\n");
-	printf(" (enter four-digit number for example 1234)\n");
+	printf("\t\tRule\n");
+	printf("'cow'- you guessed the number, but not its position\n");
+	printf("'bull' - you guessed both the number and position\n\n");
+	printf(" (enter %d-digit number)\n", SIZE);
 	
 	while(1)
 	{
@@ -42,17 +42,18 @@ int main()
 			}
 			input/=10;
 		}
-		if(bulls!=4)
+		if(bulls!=SIZE)
 		{
 			printf("Cows: %d\nBulls: %d\n\n", cows, bulls);
 		}
 		else
 		{
-			printf("You Win!\t{attemps: %d}\n", attempts);
+			printf("You Win! {attemps: %d}\n", attempts);
 			printf("1-new game   0-exit\n"); scanf("%d", &retry);
 			if(retry)
 			{
 				printf("\nStart\n");
+				attempts=0;
 				randomizearr(ptr);
 			}
 			else
@@ -61,7 +62,7 @@ int main()
 				break;
 			}
 		}
-		cows=0; bulls=0, attempts=0;
+		cows=0; bulls=0;
 	}
 	
 	return 0;
@@ -82,7 +83,7 @@ void randomizearr(int *ptr)
 			}
 			ptr++;
 		}
-		ptr-=4;
+		ptr-=SIZE;
 		if(!isin)
 		{
 			*(ptr+i) = rnum;
