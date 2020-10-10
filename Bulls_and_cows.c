@@ -4,10 +4,12 @@
 
 #define SIZE 4
 
+
 void randomizearr(int *ptr);
 
 int main()
 {
+	#if SIZE <= 9
 	srand(time(NULL));
 	int num[SIZE]={0};
 	int *ptr = num;
@@ -64,7 +66,9 @@ int main()
 		}
 		cows=0; bulls=0;
 	}
-	
+	#else
+	printf("!!! SIZE must be < 10 !!!\n");
+	#endif
 	return 0;
 }
 
