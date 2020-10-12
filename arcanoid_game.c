@@ -9,15 +9,17 @@
 #define COLS 60
 #define ROWS 20
 
+char map[COLS][ROWS];
+char boxes[COLS][ROWS];
 
-typedef struct
+typedef struct // Ракетка
 {
 	int x,y;
 	int width;
 } TRacet;
 TRacet racet;
 
-typedef struct
+typedef struct  // Мячик
 {
 	float x,y;
 	int rx, ry;
@@ -26,72 +28,100 @@ typedef struct
 } TBall;
 TBall ball;
 
+// Счетчкики очков и уровня
 int Hit_Counter = 0;
 int Max_hit = 0;
+int level = 1;
 
+void setScreenSize();
 void hidecursor();
-void fillMap(char *ptr);
-void printMap(char *ptr);
+void fillMap();
+void printMap();
 void initRacet();
 void initBall();
-void putRacet(char *ptr);
-void putBall(char *ptr);
+void putRacet();
+void putBall();
 void moveRacet(int x);
 void moveBall(float x, float y);
-void autoMoveBall(char *ptr);
-
-
-
+void autoMoveBall();
 void setcur();
+void initBoxes();
+
 
 int main()
 {
 	long int ttime, fixtime, fps_counter; // FPS
-	char map[COLS][ROWS];
-	char *map_ptr = map[0];
-	int run=0;
+	int run=0; // Начата ли игра
+	setScreenSize();
 	initRacet();
 	initBall();
+	initBoxes();
 	hidecursor();
-	
+
 	fixtime = time(NULL);
 	do
 	{
 		ttime = time(NULL);
 		fps_counter++;
-		setcur();
-		fillMap(map_ptr);
-		putRacet(map_ptr);
-		putBall(map_ptr);
-		printMap(map_ptr);
-		// Move Racet
+		setcur(); // сдвигаем курсор в начало
+		fillMap(); // обнуляем карту
+		putRacet(); // рисуем ракетку
+		putBall(); // рисуем мяч
+		printMap(); // рисуем карту
+		// изменения сложности
+		switch(Hit_Counter)
+		{
+			case 0:
+			{
+				racet.width = 11;
+				ball.speed = 0.8;
+				break;
+			}
+			case 3:
+			{
+				racet.width = 9;
+				ball.speed = 1;
+				break;
+			}
+			case 5:
+			{
+				ball.speed = 1.2;
+				level = 2;
+				break;
+			}
+			case 10:
+			{
+				racet.width = 7;
+				ball.speed = 1;
+				break;
+			}
+		}
+		// Управление ракеткой
 		if(GetKeyState('A') < 0)
 			moveRacet(racet.x - 1);
 		if(GetKeyState('D') < 0)
 			moveRacet(racet.x + 1);
-		if(Hit_Counter == 3)
-			racet.width=7;
-		if(Hit_Counter == 10)
-			racet.width=5;
-		if(Hit_Counter == 15)
-			racet.width=3;
-		// Move ball
+		// Движение мячика
 		if(GetKeyState('W') < 0)
 			run = 1;
-		if(ball.ry > ROWS-1)
+		if(ball.ry > ROWS-2) // Если мячик улетел вниз
 		{
 			run = 0;
 			if(Hit_Counter > Max_hit)
 				Max_hit = Hit_Counter;
 			Hit_Counter = 0;
-			ball.speed = 0.8;
+			ball.alpha = -1;
+			racet.x = COLS/2;
+			level = 1;
+			initBoxes();
 		}	
 		if(run)
-			autoMoveBall(map_ptr);
-		else
+			autoMoveBall();
+		else // движение мячика вместе с ракетуой
 			moveBall(racet.x + racet.width/2, racet.y-2);
-		printf("\n\nScore: %d   Speed:%.2f\nTop Score: %d\n", Hit_Counter, ball.speed, Max_hit);
-		// Print FPS
+		// Вывод основной информации
+		printf("\n\nLevel: %d\nScore: %d   Speed:%.3f\nTop Score: %d\n", level, Hit_Counter, ball.speed, Max_hit);
+		// FPS
 		if(ttime == fixtime+1)
 		{
 			printf("FPS: %ld\n", fps_counter);
@@ -124,23 +154,18 @@ void initBall()
 	ball.speed = 0.8;
 }
 
-void putRacet(char *ptr)
+void putRacet()
 {
-	ptr+=(COLS*(ROWS-1));
-	ptr+=racet.x;
-	for(int i=0; i<racet.width; i++ )
+	for(int i=racet.x; i<(racet.width+racet.x); i++ )
 	{
-		*ptr = '@';
-		ptr++;
+		map[i][ROWS-1] = '@';
 	}
 }
 
 
-void putBall(char *ptr)
+void putBall()
 {
-	ptr+=(COLS*ball.ry);
-	ptr+=ball.rx;
-	*ptr = '*';
+	map[ball.rx][ball.ry] = '*';
 }
 
 
@@ -148,6 +173,7 @@ void moveRacet(int x)
 {
 	int old_x = racet.x;
 	racet.x = x;
+	// не позволяет ракетке вылететь с поля
 	if((racet.x < 1)||(racet.x > (COLS-1-racet.width)))
 	{
 		racet.x = old_x;
@@ -164,34 +190,35 @@ void moveBall(float x, float y)
 }
 
 
-void autoMoveBall(char *ptr)
+void autoMoveBall()
 {
+	// привод угла к виду от 0 до 180
 	if(ball.alpha < 0) 
 		ball.alpha += M_PI * 2;
 	if(ball.alpha > M_PI * 2)
 		ball.alpha -= M_PI * 2;
-		
+	// сохранение начальной позиции мячика
 	TBall oldball = ball;
 	moveBall(ball.x + cos(ball.alpha)*ball.speed,
 			ball.y + sin(ball.alpha)*ball.speed);
-			
-	if( *(ptr+(COLS*ball.ry) + ball.rx)=='#' || *(ptr+(COLS*ball.ry) + ball.rx)=='@')
+	// удары о поверхности	
+	if(map[ball.rx][ball.ry]=='#' || map[ball.rx][ball.ry]=='@'|| map[ball.rx][ball.ry]=='0')
 	{
-		if (*(ptr+(COLS*ball.ry) + ball.rx)=='@')
+		if (map[ball.rx][ball.ry]=='0')
 		{
+			boxes[ball.rx][ball.ry] = ' ';
 			Hit_Counter++;
-			oldball.speed += 0.02;
 		}
 			
 		if((ball.rx!=oldball.rx)&&(ball.ry!=oldball.ry))
 		{
-			if(*(ptr+(COLS*oldball.ry) + ball.rx) == *(ptr+(COLS*ball.ry) + oldball.rx))
+			if(map[oldball.rx][ball.ry] == map[ball.rx][oldball.ry])
 			{
 				oldball.alpha = oldball.alpha + M_PI;
 			}
 			else
 			{
-				if(*(ptr+(COLS*oldball.ry) + ball.rx) == '#')
+				if(map[ball.rx][oldball.ry] == '#')
 				{
 					oldball.alpha = (2 * M_PI - oldball.alpha) + M_PI;
 				}
@@ -211,35 +238,60 @@ void autoMoveBall(char *ptr)
 			oldball.alpha = (2 * M_PI - oldball.alpha);
 		}
 		ball = oldball;
-		autoMoveBall(ptr);
+		autoMoveBall();
 	}
 }
 
 
-void fillMap(char *ptr)
+void initBoxes()
 {
-	for(int i=0; i<ROWS; i++)
+	for(int row=3; row < 5; row++)
 	{
-		for(int j=0; j<COLS; j++)
+		for(int col=4; col<COLS-4; col++)
 		{
-			if(j==0||j==COLS-1||i==0)
-				*ptr = '#';
-			else
-				*ptr = ' ';
-			ptr++;
+			boxes[col][row] = (rand()%2==1)?'0':' ';
 		}
 	}
 }
 
 
-void printMap(char *ptr)
+void fillMap()
 {
-	for(int i=0; i<ROWS; i++)
+	for(int row=0; row<ROWS; row++)
 	{
-		for(int j=0; j<COLS; j++)
+		for(int col=0; col<COLS; col++)
 		{
-			printf("%c", *ptr);
-			ptr++;
+			if(col==0||col==COLS-1||row==0)
+				map[col][row] = '#';
+			else
+				map[col][row] = ' ';
+		}
+	}
+	
+	for(int row=3; row < 5; row++)
+	{
+		for(int col=4; col<COLS-4; col++)
+		{
+			map[col][row] = boxes[col][row];
+		}
+	}
+	if(level==2)
+	{
+		for(int i=COLS/4; i<COLS/4*3; i++)
+		{
+			map[i][ROWS/2] = '#';
+		}
+	}
+}
+
+
+void printMap()
+{
+	for(int row=0; row<ROWS; row++)
+	{
+		for(int col=0; col<COLS; col++)
+		{
+			printf("%c", map[col][row]);
 		}
 		printf("\n");
 	}
@@ -263,3 +315,13 @@ void hidecursor()
    info.bVisible = FALSE;
    SetConsoleCursorInfo(consoleHandle, &info);
 }
+
+
+void setScreenSize()
+{
+	COORD crd = {COLS, ROWS+10};
+	SMALL_RECT src = {0, 0, crd.X, crd.Y};
+	SetConsoleScreenBufferSize (GetStdHandle (STD_OUTPUT_HANDLE), crd);
+	SetConsoleWindowInfo (GetStdHandle (STD_OUTPUT_HANDLE), TRUE, &src);
+}
+
