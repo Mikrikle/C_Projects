@@ -5,12 +5,13 @@
 #include <windows.h>
 #include <math.h>
 
+// Настройки игры
+#define COLS 80 // Ширина поля >= 20
+#define ROWS 26 // Высота поля >= 20
+#define SLEEP 10 // Регулировка скорости игры, чем больше, тем медленнее игра
 
-#define COLS 60
-#define ROWS 20
-
-char map[COLS][ROWS];
-char boxes[COLS][ROWS];
+char map[ROWS][COLS+1];
+char boxes[ROWS][COLS];
 
 typedef struct // Ракетка
 {
@@ -50,6 +51,7 @@ void initBoxes();
 
 int main()
 {
+	srand(time(NULL));
 	long int ttime, fixtime, fps_counter; // FPS
 	int run=0; // Начата ли игра
 	setScreenSize();
@@ -73,26 +75,42 @@ int main()
 		{
 			case 0:
 			{
-				racet.width = 11;
-				ball.speed = 0.8;
-				break;
-			}
-			case 3:
-			{
-				racet.width = 9;
-				ball.speed = 1;
+				racet.width = COLS/10+3;
+				ball.speed = 0.4;
 				break;
 			}
 			case 5:
 			{
-				ball.speed = 1.2;
-				level = 2;
+				racet.width = COLS/10+1;
+				ball.speed = 0.45;
 				break;
 			}
 			case 10:
 			{
-				racet.width = 7;
-				ball.speed = 1;
+				level = 2;
+				run=0;
+				initBoxes();
+				Hit_Counter = 15;
+				break;
+			}
+			case 25:
+			{
+				racet.width = COLS/10-1;
+				ball.speed = 0.5;
+				break;
+			}
+			case 30:
+			{
+				level = 3;
+				run = 0;
+				initBoxes();
+				Hit_Counter = 40;
+				break;
+			}
+			case 100:
+			{
+				level = 100;
+				run = 0;
 				break;
 			}
 		}
@@ -118,9 +136,9 @@ int main()
 		if(run)
 			autoMoveBall();
 		else // движение мячика вместе с ракетуой
-			moveBall(racet.x + racet.width/2, racet.y-2);
+			moveBall(racet.x + racet.width/2, racet.y-3);
 		// Вывод основной информации
-		printf("\n\nLevel: %d\nScore: %d   Speed:%.3f\nTop Score: %d\n", level, Hit_Counter, ball.speed, Max_hit);
+		printf("\n\nLevel: %d/3\nScore: %d\tTop Score: %d\n\nSpeed:%.2f\n", level, Hit_Counter, Max_hit,  ball.speed);
 		// FPS
 		if(ttime == fixtime+1)
 		{
@@ -128,7 +146,7 @@ int main()
 			fixtime = time(NULL);
 			fps_counter = 0;
 		}
-		
+		Sleep(SLEEP);
 	}
 	while(GetKeyState(VK_ESCAPE) >= 0);
 	
@@ -138,7 +156,6 @@ int main()
 
 void initRacet()
 {
-	racet.width = 9;
 	racet.x = (COLS - racet.width)/2;
 	racet.y = ROWS;
 }
@@ -151,21 +168,21 @@ void initBall()
 	ball.rx = (int)round(ball.x);
 	ball.ry = (int)round(ball.y);
 	ball.alpha = -1;
-	ball.speed = 0.8;
+	ball.speed = 0.4;
 }
 
 void putRacet()
 {
 	for(int i=racet.x; i<(racet.width+racet.x); i++ )
 	{
-		map[i][ROWS-1] = '@';
+		map[ROWS-2][i] = '@';
 	}
 }
 
 
 void putBall()
 {
-	map[ball.rx][ball.ry] = '*';
+	map[ball.ry][ball.rx] = '*';
 }
 
 
@@ -202,23 +219,22 @@ void autoMoveBall()
 	moveBall(ball.x + cos(ball.alpha)*ball.speed,
 			ball.y + sin(ball.alpha)*ball.speed);
 	// удары о поверхности	
-	if(map[ball.rx][ball.ry]=='#' || map[ball.rx][ball.ry]=='@'|| map[ball.rx][ball.ry]=='0')
+	if(map[ball.ry][ball.rx]!=' ' && map[ball.ry][ball.rx]!='*')
 	{
-		if (map[ball.rx][ball.ry]=='0')
+		if (map[ball.ry][ball.rx]=='0')
 		{
-			boxes[ball.rx][ball.ry] = ' ';
+			boxes[ball.ry][ball.rx] = ' ';
 			Hit_Counter++;
 		}
-			
 		if((ball.rx!=oldball.rx)&&(ball.ry!=oldball.ry))
 		{
-			if(map[oldball.rx][ball.ry] == map[ball.rx][oldball.ry])
+			if(map[oldball.ry][ball.rx] == map[ball.ry][oldball.rx])
 			{
 				oldball.alpha = oldball.alpha + M_PI;
 			}
 			else
 			{
-				if(map[ball.rx][oldball.ry] == '#')
+				if(map[oldball.ry][ball.rx] == '#' || map[oldball.ry][ball.rx] == '0')
 				{
 					oldball.alpha = (2 * M_PI - oldball.alpha) + M_PI;
 				}
@@ -245,11 +261,33 @@ void autoMoveBall()
 
 void initBoxes()
 {
-	for(int row=3; row < 5; row++)
+	switch(level)
 	{
-		for(int col=4; col<COLS-4; col++)
+		case 1:
+		case 2:
 		{
-			boxes[col][row] = (rand()%2==1)?'0':' ';
+			for(int row=4; row < 6; row++)
+			{
+				for(int col=4; col<COLS-4; col++)
+				{
+					boxes[row][col] = (rand()%2==1)?'0':' ';
+				}
+			}
+			break;
+		}
+		case 3:
+		{
+			for(int row=4; row < 8; row++)
+			{
+				for(int col=4; col<COLS-4; col++)
+				{
+					if(col<= 8 || col >= COLS-12 || row==4)
+					{
+						boxes[row][col] = '0';
+					}
+				}
+			}
+			break;
 		}
 	}
 }
@@ -257,29 +295,49 @@ void initBoxes()
 
 void fillMap()
 {
-	for(int row=0; row<ROWS; row++)
+	for(int row=0; row<ROWS-1; row++)
 	{
 		for(int col=0; col<COLS; col++)
 		{
 			if(col==0||col==COLS-1||row==0)
-				map[col][row] = '#';
+				map[row][col] = '#';
 			else
-				map[col][row] = ' ';
+				map[row][col] = ' ';
+			if(boxes[row][col] == '0')
+				map[row][col] = '0';
 		}
+		map[row][COLS] = '\0';
 	}
-	
-	for(int row=3; row < 5; row++)
+	switch(level)
 	{
-		for(int col=4; col<COLS-4; col++)
+		case 2:
 		{
-			map[col][row] = boxes[col][row];
+			for(int i=COLS/4; i<COLS/4*3; i++)
+			{
+				map[ROWS/2][i] = '#';
+			}
+			break;
 		}
-	}
-	if(level==2)
-	{
-		for(int i=COLS/4; i<COLS/4*3; i++)
+		case 3:
 		{
-			map[i][ROWS/2] = '#';
+			for(int row=6; row<10; row++)
+			{
+				for(int col=4; col<COLS-4; col++)
+				{
+					if(col%(COLS/10)==0)
+					{
+						map[row][col] = '#';
+					}
+				}
+			}
+			break;
+		}
+		case 100:
+		{
+			map[ROWS/2][COLS/2-1] = 'W';
+			map[ROWS/2][COLS/2] = 'I';
+			map[ROWS/2][COLS/2+1] = 'N';
+			break;
 		}
 	}
 }
@@ -287,14 +345,8 @@ void fillMap()
 
 void printMap()
 {
-	for(int row=0; row<ROWS; row++)
-	{
-		for(int col=0; col<COLS; col++)
-		{
-			printf("%c", map[col][row]);
-		}
-		printf("\n");
-	}
+	for(int row=0; row < ROWS; row++)
+		printf("%s\n", map[row]);
 }
 
 
@@ -324,4 +376,3 @@ void setScreenSize()
 	SetConsoleScreenBufferSize (GetStdHandle (STD_OUTPUT_HANDLE), crd);
 	SetConsoleWindowInfo (GetStdHandle (STD_OUTPUT_HANDLE), TRUE, &src);
 }
-
