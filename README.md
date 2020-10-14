@@ -47,3 +47,8 @@ Answer: 1 bull and 2 cows. (The bull is "2", the cows are "4" and "1".)
 classic game with a racket and a ball
 
 
+### graphics
+
+draw your graphic
+
+
