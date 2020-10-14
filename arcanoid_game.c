@@ -122,7 +122,7 @@ int main()
 		// Движение мячика
 		if(GetKeyState('W') < 0)
 			run = 1;
-		if(ball.ry > ROWS-2) // Если мячик улетел вниз
+		if(ball.ry > ROWS-3) // Если мячик улетел вниз
 		{
 			run = 0;
 			if(Hit_Counter > Max_hit)
