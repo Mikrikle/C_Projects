@@ -3,15 +3,23 @@
 #include <stdlib.h>
 #include <time.h>
 #include <windows.h>
+#include <strings.h>
 #include <math.h>
 
 
+// размер экрана
 #define COLS 100 
 #define ROWS 40 
-#define SLEEP 100 
+// задержка при рисовании графика
+#define SLEEP 50
+// количество графиков в програме
+#define FUNCTIONSNUM 3
+// символ которым будет рисоваться график
+#define GRAPHFILL '0' 
+// символ пересечения грфиков
+#define INTERSECTION '8'
 
 char map[ROWS][COLS+1];
-
 
 void setScreenSize();
 void hidecursor();
@@ -19,40 +27,72 @@ void fillMap();
 void printMap();
 void setcur();
 
-int f(int x);
+// укажите функции графиков в
+int f(int x, int fnum);
 
 
 int main()
 {
-	srand(time(NULL));
 	setScreenSize();
 	hidecursor();
 	fillMap(); 
-	int y, x, params;
-	int isexit=0;
-	for(x=0; x<COLS/2&&isexit!=1; x++)
+	int y, x, params, num;
+	for(x=0; x<COLS/2; x++)
 	{
 		setcur(); 
 		printMap();
-		for(params = -x; params<x*3; params+=(x+x) )
+		// одновременное рисование всех функций программы
+		for(num = 1; num <= FUNCTIONSNUM; num++)
 		{
-			y = f(params);
-			if(y>ROWS/2 || y<-ROWS/2)
+			// необходим для рисования графика сразу в обе стороны от OY
+			// возможно создание своего условия
+			params = -x;
+			do
 			{
-				isexit=1;
-				printf(" Complete\n");
-				break;
+				y = f(params, num);
+				// график не будет рисоваться за пределами поля
+				if(y<ROWS/2 && y>-ROWS/2)
+				{
+					if(map[ROWS - y - ROWS/2][params + COLS/2] == GRAPHFILL)
+						map[ROWS - y - ROWS/2][params + COLS/2] = INTERSECTION; // пересечения
+					else
+						map[ROWS - y - ROWS/2][params + COLS/2] = GRAPHFILL;
+				}
+				// params становится равен x
+				params+=(x+x);
 			}
-			map[ROWS - y - ROWS/2][params + COLS/2] = '0';
+			while(params<x*3);
 		}
 		Sleep(SLEEP);
 	}
+	printf("    Complete\n Press Enter to continue\n");
+	getch();
 	return 0;
 }
 
-int f(int x)
+
+int f(int x, int fnum)
 {
-	return (x*x*x*0.4)/100;
+	// количество блоков case должно совпадать с FUNCTIONSNUM
+	switch(fnum)
+	{
+		case 1:
+		{
+			return sin(x)*2;
+		}
+		case 2:
+		{
+			return x*x/10;
+		}
+		case 3:
+		{
+			return -x/3;
+		}
+		default:
+		{
+			return 1;
+		}
+	}
 }
 
 
