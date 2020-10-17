@@ -51,4 +51,8 @@ classic game with a racket and a ball
 
 draw your graphic
 
+### console paint
+
+drawing symbols in the console using the keyboard
+
 
