@@ -17,13 +17,13 @@
 the implementation of the Python`s randint() function
 
 ### Upper
-
+<pre>
 Hello WoRlD -> HELLO WORLD
-
+</pre>
 ### invert string
-
+<pre>
 Hello world!!! -> !!!dlrow olleH
-
+</pre>
 ### X_O (cross-zero)
 
 a simple single player TIC TAC toe
