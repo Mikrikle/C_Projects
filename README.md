@@ -66,3 +66,6 @@ draw your graphic ( change f(x) function )
 drawing symbols in the console using the keyboard
 ![paint](https://user-images.githubusercontent.com/50238538/96334456-a3cadb80-1079-11eb-9b0d-fce22ab0e84c.png)
 
+## snake game
+
+![snake](https://user-images.githubusercontent.com/50238538/96372054-bf171300-116d-11eb-9767-33e8d2140597.png)
