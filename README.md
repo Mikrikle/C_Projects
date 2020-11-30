@@ -69,3 +69,7 @@ drawing symbols in the console using the keyboard
 ## snake game
 
 ![snake](https://user-images.githubusercontent.com/50238538/96372054-bf171300-116d-11eb-9767-33e8d2140597.png)
+
+## infinite rhombuses
+
+![image](https://user-images.githubusercontent.com/50238538/100597982-2d272c00-330f-11eb-925d-b927cc674d15.png)
