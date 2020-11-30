@@ -1,0 +1,116 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>
+#include <time.h>
+
+#define SIZE 50
+#define FROM 46
+#define TO 47
+
+void setScreenSize();
+void hidecursor();
+void setcur();
+void printArr(char arr[][SIZE + 1]);
+void increaseElem(char *elem, int isclear);
+
+int main()
+{
+	srand(time(NULL));
+	char arr[SIZE][SIZE + 1];
+	for (int i = 0; i < SIZE; i++)
+	{
+		for (int j = 0; j < SIZE; j++)
+			arr[i][j] = FROM;
+		arr[i][SIZE] = '\0';
+	}
+
+	char *elem;
+	int k = 0;
+	int inversion = 0;
+	int isclear = 0;
+	int tick = 1;
+	setScreenSize();
+	hidecursor();
+	while (1)
+	{
+		setcur();
+		if (k < SIZE)
+		{
+			for (int row = 0; row <= k; row++)
+			{
+				if (inversion)
+					elem = &arr[row][SIZE - 1 - (k - row)];
+				else
+					elem = &arr[row][k - row];
+				increaseElem(elem, isclear);
+			}
+		}
+		else
+		{
+			for (int row = 0; row <= (SIZE * 2 - 2) - k; row++)
+			{
+				if (inversion)
+					elem = &arr[SIZE - row][SIZE - 1 - (row + 2 + k)];
+				else
+					elem = &arr[SIZE - row - 2][row + 2 + k];
+				increaseElem(elem, isclear);
+			}
+		}
+		if (k < SIZE * 2 - 2)
+			k++;
+		else
+			k = 0;
+		//Sleep(1);
+		if (tick % 36 == 0)
+			inversion = rand() % 2;
+		if(tick > 1000 - SIZE*2)
+			isclear = 1;
+		else
+			isclear = 0;
+		printArr(arr);
+		tick++;
+		if (tick > 1000)
+			tick = 0;
+	}
+
+	return 0;
+}
+
+void increaseElem(char *elem,  int isclear)
+{
+	if (*elem < TO && isclear==0)
+		(*elem)++;
+	else
+		*elem = FROM;
+}
+
+void printArr(char arr[][SIZE + 1])
+{
+	for (int i = 0; i < SIZE; i++)
+		printf("%s\n", arr[i]);
+}
+
+void setcur()
+{
+	COORD coord;
+	coord.X = 0;
+	coord.Y = 0;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+void hidecursor()
+{
+	HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_CURSOR_INFO info;
+	info.dwSize = 100;
+	info.bVisible = FALSE;
+	SetConsoleCursorInfo(consoleHandle, &info);
+}
+
+void setScreenSize()
+{
+	COORD crd = {SIZE + 5, SIZE + 5};
+	SMALL_RECT src = {0, 0, crd.X, crd.Y};
+	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), crd);
+	SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), TRUE, &src);
+}
